@@ -4,20 +4,16 @@
  * @version 1.0
  */
 public without sharing class Application {
-    public static SelectorFactory selectors = new SelectorFactory(
-        new Map<SObjectType, Type>{
-            
-        }
-    );
+    public static SelectorFactory selectors = new SelectorFactory(new Map<SObjectType, Type>{});
 
     public static ServiceFactory services = new ServiceFactory(
-        new Map<Type, Type>{ UserService.class => UserService.class, ContentDistributionService.class => ContentDistributionService.class }
+        new Map<Type, Type>{  }
     );
 
-    public static DomainFactory domains = new DomainFactory(
-        new Map<SObjectType, Type>{
-            
-        }
+    public static DomainFactory domains = new DomainFactory(new Map<SObjectType, Type>{});
+
+    public static HandlerFactory handlers = new HandlerFactory(
+        new Map<SObjectType, Type>{  }
     );
 
     /**
