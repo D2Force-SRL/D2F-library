@@ -58,6 +58,44 @@ public inherited sharing virtual class SObjects extends Objects {
         return ids;
     }
 
+        /**
+     * @description Method to get the set of Id values for the specified field and value
+     * @param idField - sObject field
+     * @param valueField - sObject field
+     * @param expectedValue - expected value
+     */
+    public Set<Id> getIdFieldValuesByFieldValue(final SObjectField idField, final SObjectField valueField, final Object expectedValue) {
+        return this.getIdFieldValuesByFieldsValues(idField, new Set<SObjectField>{ valueField }, new Set<Object>{ expectedValue });
+    }
+
+    /**
+     * @description Method to get the set of Id values for the specified fields and values
+     * @param idField - sObject field
+     * @param valueFields - set of sObject fields
+     * @param expectedValues - set of expected values
+     * @return Set of Id values
+     */
+    public Set<Id> getIdFieldValuesByFieldsValues(
+        final SObjectField idField,
+        final Set<SObjectField> valueFields,
+        final Set<Object> expectedValues
+    ) {
+        if (idField == null || Sets.isNullOrEmpty(valueFields) || Sets.isNullOrEmpty(expectedValues)) {
+            return new Set<Id>();
+        }
+
+        Set<Id> ids = new Set<Id>();
+        for (SObject record : (List<SObject>) this.getRecords()) {
+            for (SObjectField valueField : valueFields) {
+                if (expectedValues.contains(record.get(valueField))) {
+                    ids.add((Id) record.get(idField));
+                }
+            }
+        }
+
+        return ids;
+    }
+
     /**
      * @description Domain constructor class
      * @author dmitrii.dronov@d2force.com

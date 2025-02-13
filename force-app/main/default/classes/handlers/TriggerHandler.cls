@@ -5,6 +5,7 @@ public without sharing virtual class TriggerHandler {
 
     private List<SObject> newRecords;
     private Map<Id, SObject> newRecordsByIds;
+    private List<SObject> oldRecords;
     private Map<Id, SObject> oldRecordsByIds;
 
     public TriggerHandler() {
@@ -49,16 +50,15 @@ public without sharing virtual class TriggerHandler {
         return this.oldRecordsByIds;
     }
 
-    public Map<Id, Set<Schema.SObjectField>> getChangedRetainedFieldsByRecordIds(
-        final Set<Schema.SObjectField> fieldsToRetain
-    ) {
+    public List<SObject> getOldRecords() {
+        return this.oldRecords;
+    }
+
+    public Map<Id, Set<Schema.SObjectField>> getChangedRetainedFieldsByRecordIds(final Set<Schema.SObjectField> fieldsToRetain) {
         Map<Id, Set<SObjectField>> changedRetainedFieldsByRecordIds = new Map<Id, Set<SObjectField>>();
 
         for (SObject newRecord : this.getNewRecords()) {
-            Set<SObjectField> changedDeltaFields = this.getChangedRetainedFields(
-                newRecord,
-                fieldsToRetain
-            );
+            Set<SObjectField> changedDeltaFields = this.getChangedRetainedFields(newRecord, fieldsToRetain);
 
             changedRetainedFieldsByRecordIds.put(newRecord.Id, changedDeltaFields);
         }
@@ -66,10 +66,7 @@ public without sharing virtual class TriggerHandler {
         return changedRetainedFieldsByRecordIds;
     }
 
-    public Set<Schema.SObjectField> getChangedRetainedFields(
-        final SObject record,
-        final Set<Schema.SObjectField> fieldsToRetain
-    ) {
+    public Set<Schema.SObjectField> getChangedRetainedFields(final SObject record, final Set<Schema.SObjectField> fieldsToRetain) {
         if (record == null || fieldsToRetain == null) {
             return new Set<Schema.SObjectField>();
         }
@@ -106,9 +103,7 @@ public without sharing virtual class TriggerHandler {
                 this.onAfterUndelete();
             }
             when else {
-                throw new TriggerHandlerException(
-                    'Operation type not supported: ' + this.operationType
-                );
+                throw new TriggerHandlerException('Operation type not supported: ' + this.operationType);
             }
         }
     }
@@ -129,15 +124,8 @@ public without sharing virtual class TriggerHandler {
             return changedFields;
         }
 
-        final SObject oldRecord = this.getOldRecordsByIds() == null
-            ? null
-            : this.getOldRecordsByIds().get(record.Id);
-        for (
-            Schema.SObjectField field : record.getSObjectType()
-                .getDescribe()
-                .fields.getMap()
-                .values()
-        ) {
+        final SObject oldRecord = this.getOldRecordsByIds() == null ? null : this.getOldRecordsByIds().get(record.Id);
+        for (Schema.SObjectField field : record.getSObjectType().getDescribe().fields.getMap().values()) {
             if (oldRecord == null || record.get(field) != oldRecord.get(field)) {
                 changedFields.add(field);
             }
@@ -148,11 +136,7 @@ public without sharing virtual class TriggerHandler {
 
     public List<SObject> getChangedRecordsBy(final SObjectField field, final Object value) {
         List<SObject> changedRecords = new List<SObject>();
-        if (
-            field == null ||
-            this.getNewRecords() == null ||
-            field.getDescribe().getSObjectType() != this.sObjectType
-        ) {
+        if (field == null || this.getNewRecords() == null || field.getDescribe().getSObjectType() != this.sObjectType) {
             return changedRecords;
         }
 
@@ -183,9 +167,7 @@ public without sharing virtual class TriggerHandler {
                 continue;
             }
 
-            final SObject oldRecord = this.getOldRecordsByIds() == null
-                ? null
-                : this.getOldRecordsByIds().get(newRecord.Id);
+            final SObject oldRecord = this.getOldRecordsByIds() == null ? null : this.getOldRecordsByIds().get(newRecord.Id);
             if (oldRecord == null) {
                 changedRecords.add(newRecord);
                 continue;
@@ -236,9 +218,7 @@ public without sharing virtual class TriggerHandler {
 
     private void setTriggerContext() {
         this.operationType = Trigger.operationType;
-        this.setNewRecords(Trigger.new)
-            .setNewRecordsByIds(Trigger.newMap)
-            .setOldRecordsByIds(Trigger.oldMap);
+        this.setNewRecords(Trigger.new).setNewRecordsByIds(Trigger.newMap).setOldRecords(Trigger.old).setOldRecordsByIds(Trigger.oldMap);
     }
 
     @testVisible
@@ -250,6 +230,12 @@ public without sharing virtual class TriggerHandler {
     @testVisible
     private TriggerHandler setNewRecordsByIds(Map<Id, SObject> newRecordsByIds) {
         this.newRecordsByIds = newRecordsByIds;
+        return this;
+    }
+
+    @testVisible
+    private TriggerHandler setOldRecords(List<SObject> oldRecords) {
+        this.oldRecords = oldRecords;
         return this;
     }
 
