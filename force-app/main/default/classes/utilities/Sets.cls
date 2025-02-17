@@ -40,4 +40,23 @@ public without sharing class Sets {
     public static Boolean isNullOrEmpty(final Set<String> strings) {
         return strings == null || strings.isEmpty();
     }
+
+        /**
+     * @description Method to convert a set of Id values to a string
+     * @param ids - the set of Id values to convert
+     * @return the string representation of the set
+     */
+    public static String toString(final Set<Id> ids) {
+        if (ids == null) {
+            return '()';
+        }
+
+        String stringIds = '(';
+
+        for (Id id : ids) {
+            stringIds += '\'' + id + '\',';
+        }
+
+        return stringIds.removeEnd(',') + ')';
+    }
 }
