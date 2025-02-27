@@ -59,4 +59,49 @@ public without sharing class Sets {
 
         return stringIds.removeEnd(',') + ')';
     }
+
+    /**
+     * @description Method to convert a set of string values to a string
+     * @param strings - `Set<String>`
+     * @return `String` - the string representation of the set
+     */
+    public static String toString(final Set<String> strings) {
+        if (strings == null) {
+            return '()';
+        }
+
+        String stringIds = '(';
+
+        for (String stringValue : strings) {
+            stringIds += '\'' + stringValue + '\',';
+        }
+
+        return stringIds.removeEnd(',') + ')';
+    }
+
+    /**
+     * @description Method to convert a set of string values to a set of Id values
+     * @param strings - `Set<String>` values to convert
+     * @return `Set<Id>` - the set of Id values
+     */
+    public static Set<Id> toIdSet(final Set<String> strings) {
+        if (strings == null) {
+            return new Set<Id>();
+        }
+
+        Set<Id> ids = new Set<Id>();
+        for (String stringId : strings) {
+            if (String.isBlank(stringId)) {
+                continue;
+            }
+
+            try {
+                ids.add(Id.valueOf(stringId));
+            } catch (Exception error) {
+                System.debug(LoggingLevel.ERROR, '[Sets][toIdSet] Error: ' + Exceptions.getDetails(error));
+            }
+        }
+
+        return ids;
+    }
 }

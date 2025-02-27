@@ -15,6 +15,14 @@ public without sharing abstract class Objects {
         this.objects = objects == null ? new List<Object>() : objects;
     }
 
+        /**
+     * @description Get list of objects
+     * @return `List<Object>`
+     */
+    protected List<Object> getObjects() {
+        return this.objects;
+    }
+
     /**
      * @description Domain constructor class interface
      */

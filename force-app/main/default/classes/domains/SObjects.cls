@@ -1,6 +1,6 @@
 /**
  * @description Virtual domain class for sObjects
- * @author dmitrii.dronov@d2force.com
+ * @author dmitrii.dronov@integrate2cloud.com
  * @group domains
  * @version 1.0
  * @see Objects
@@ -51,6 +51,10 @@ public inherited sharing virtual class SObjects extends Objects {
 
         for (SObject record : (List<SObject>) this.getRecords()) {
             for (SObjectField field : fields) {
+                if (record.get(field) == null) {
+                    continue;
+                }
+
                 ids.add((Id) record.get(field));
             }
         }
@@ -58,7 +62,7 @@ public inherited sharing virtual class SObjects extends Objects {
         return ids;
     }
 
-        /**
+    /**
      * @description Method to get the set of Id values for the specified field and value
      * @param idField - sObject field
      * @param valueField - sObject field
@@ -88,6 +92,9 @@ public inherited sharing virtual class SObjects extends Objects {
         for (SObject record : (List<SObject>) this.getRecords()) {
             for (SObjectField valueField : valueFields) {
                 if (expectedValues.contains(record.get(valueField))) {
+                    if (record.get(idField) == null) {
+                        continue;
+                    }
                     ids.add((Id) record.get(idField));
                 }
             }
@@ -97,8 +104,30 @@ public inherited sharing virtual class SObjects extends Objects {
     }
 
     /**
+     * @description Method to group record ids by string field value
+     * @param field - `SObjectField`
+     * @return `Map<String, Id>` - record ids by string field values
+     */
+    public Map<String, Id> groupRecordIdsByStringFieldValue(final SObjectField field) {
+        if (field == null) {
+            return new Map<String, Id>();
+        }
+
+        Map<String, Id> result = new Map<String, Id>();
+        for (SObject record : (List<SObject>) this.getRecords()) {
+            final String fieldValue = (String) record.get(field);
+            if (String.isBlank(fieldValue)) {
+                continue;
+            }
+
+            result.put(fieldValue, (Id) record.Id);
+        }
+
+        return result;
+    }
+
+    /**
      * @description Domain constructor class
-     * @author dmitrii.dronov@d2force.com
      * @see IDomainConstructor
      * @version 1.0
      */
