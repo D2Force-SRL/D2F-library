@@ -126,6 +126,64 @@ public inherited sharing virtual class SObjects extends Objects {
         return result;
     }
 
+    public SObject getRecordByFieldValue(final SObjectField field, final Object fieldValue) {
+        if (field == null || fieldValue == null) {
+            return null;
+        }
+
+        for (SObject record : this.records) {
+            if (record.get(field) == fieldValue) {
+                return record;
+            }
+        }
+
+        return null;
+    }
+
+    public List<SObject> getRecordsByFieldValues(final Set<SObjectField> fields, final Set<Object> fieldValues) {
+        List<SObject> records = new List<SObject>();
+        if (fields == null || fields.isEmpty() || fieldValues == null || fieldValues.isEmpty()) {
+            return records;
+        }
+
+        for (SObject record : this.records) {
+            for (SObjectField field : fields) {
+                if (fieldValues.contains(record.get(field))) {
+                    records.add(record);
+                }
+            }
+        }
+
+        return records;
+    }
+
+    public List<SObject> getRecordsByFieldValues(final Set<SObjectField> fields, final Set<String> stringFieldValues) {
+        List<SObject> records = new List<SObject>();
+        if (fields == null || fields.isEmpty() || stringFieldValues == null || stringFieldValues.isEmpty()) {
+            return records;
+        }
+
+        for (SObject record : this.records) {
+            for (SObjectField field : fields) {
+                final Object fieldValue = record.get(field);
+                if (fieldValue == null) {
+                    continue;
+                }
+
+                try {
+                    final String fieldValueString = String.valueOf(fieldValue);
+                    if (stringFieldValues.contains(fieldValueString)) {
+                        records.add(record);
+                    }
+                } catch (Exception error) {
+                    continue;
+                }
+            }
+        }
+
+        return records;
+    }
+
     /**
      * @description Domain constructor class
      * @see IDomainConstructor
